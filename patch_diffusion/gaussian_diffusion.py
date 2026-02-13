@@ -689,23 +689,45 @@ class GaussianDiffusion:
                     cond_fn=cond_fn,
                     model_kwargs=model_kwargs,
                 )
-                recon_mar = bp((known * 2. + 2.)) *2 -1.
+                # print(known.min(), known.max())
+                # recon_mar_ = bp((known * 2. + 2.)) *2 -1.
+                recon_mar = bp((known * 5. + 5.)) *2 -1.
      
                 out_sino_0 = fp((out["pred_xstart"] + 1. ) / 2.)
-                out_sino = th.where(mask_sino == False, out_sino_0, (known * 2. + 2.).clamp(0, 4))
+                out_sino = th.where(mask_sino == 0, out_sino_0, (known * 5. + 5.).clamp(0, 10))
                 recon = bp(out_sino) * 2. - 1.
-
+                
+                # print(recon.min(), recon.max())
+                
                 fill = -(1-a)*math.e**(-(i+1)/100*n)+1
-                sino_0n = th.where(mask_sino == False, th.full_like(out_sino, fill), th.zeros_like(out_sino)) * 4.
+                sino_0n = th.where(mask_sino == 0, th.full_like(out_sino, fill), th.zeros_like(out_sino)) * 5.
+                
                 recon_0n = bp(sino_0n).clamp(0, 1)
                 
-                sino_0n_ = th.where(mask_sino == False, th.full_like(out_sino, delta_y), th.zeros_like(out_sino)) * 4.
+                sino_0n_ = th.where(mask_sino == 0, th.full_like(out_sino, delta_y), th.zeros_like(out_sino)) * 5.
                 recon_0n_ = bp(sino_0n_).clamp(0, 1)
                
                 recon = recon_0n * out["pred_xstart"] + (th.ones_like(recon_0n) - recon_0n) * recon # apply diffusion prior in image domain again
                 recon_mar = recon_0n_ * out["pred_xstart"] + (th.ones_like(recon_0n_) - recon_0n_) * recon_mar
+                # print(recon.min(), recon.max())
+                # print(recon_mar.min(), recon_mar.max())
+                
+                # import matplotlib.pyplot as plt
+                # if i % 10 == 0:
+                #     fig, axs = plt.subplots(2,3)
+                #     axs[0,0].imshow(known[0][0].cpu().detach().numpy(), cmap="gray")
+                #     axs[0,0].set_title(f"{i}")
+                #     axs[0,1].imshow(out_sino[0][0].cpu().detach().numpy(), cmap="gray")
+                #     axs[0,2].imshow(sino_0n[0][0].cpu().detach().numpy(), cmap="gray")
+                #     axs[1,0].imshow(out_sino[0][0].cpu().detach().numpy(), cmap="gray")
+                #     axs[1,1].imshow(recon[0][0].cpu().detach().numpy(), cmap="gray")
+                #     axs[1,2].imshow(recon_mar[0][0].cpu().detach().numpy(), cmap="gray")
+                #     plt.show()
+                
                 recon = recon *  self.sqrt_alphas_cumprod[i] + recon_mar * ( 1 - self.sqrt_alphas_cumprod[i]) 
+                
 
+                
                 if i > 0:
                     out["sample"] = self.q_sample(recon, t=th.tensor([i-1] * shape[0], device=device))
                 else:

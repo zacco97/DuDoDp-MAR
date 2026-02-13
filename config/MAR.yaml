@@ -1,14 +1,14 @@
 # training data
-data_dir: /media/siat04/硬盘/data/DeepLesion1.0/Images_png/Images_png/
+# data_dir: /media/siat04/硬盘/data/DeepLesion1.0/Images_png/Images_png/
 # model
 model_name: Unet
-schedule_sampler: "uniform"
+# schedule_sampler: "uniform"
 image_size: 512
 in_channels: 1
 num_channels: 128
 num_head_channels: 64
 num_res_blocks: 2
-channel_mult: '1,1,2,2,4' # '1,1,2,2'
+channel_mult: "1,1,2,2,4" # '1,1,2,2'
 class_cond: False
 patch_size: 4
 learn_sigma: True
@@ -40,11 +40,11 @@ timestep_respacing: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
 a: 0.4 # \delta(t) = (a-1)e^{-n\frac{t}{T}}+1
 n: 4 # \delta(t) = (a-1)e^{-n\frac{t}{T}}+1
 delta_y: 0.8 # \mathcal{M}_y = \mathcal{M}(\delta_y).
-save_dir: 'results/DuDoDp-MAR' # Path of MAR results
-data_path: './test_data/SynDeepLesion' # Path of test data
-inner_dir: 'test_640geo/' # be 'apdcephfs/share_1290796/hazelhwang/mardataset/test_640geo/' for data from https://github.com/hongwang01/SynDeepLesion
-# root 
-# ├── test_640geo_dir.txt 
+save_dir: "results/DuDoDp-MAR" # Path of MAR results
+data_path: "./test_data/SynDeepLesion" # Path of test data
+inner_dir: "test_640geo/" # be 'apdcephfs/share_1290796/hazelhwang/mardataset/test_640geo/' for data from https://github.com/hongwang01/SynDeepLesion
+# root
+# ├── test_640geo_dir.txt
 # ├── testmask.npy
 # └── inner_dir
 #          ├── ...

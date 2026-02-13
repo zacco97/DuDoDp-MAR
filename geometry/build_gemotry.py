@@ -1,14 +1,16 @@
 import odl  # https://github.com/odlgroup/odl
 import numpy as np
+from odl.contrib import torch as odl_torch
+
 ## 640geo
 class initialization:
     def __init__(self):
         self.param = {}
-        self.reso = 512 / 416 * 0.03
+        self.reso = 512 / 512 * 0.08
 
         # image
-        self.param['nx_h'] = 416
-        self.param['ny_h'] = 416
+        self.param['nx_h'] = 512
+        self.param['ny_h'] = 512
         self.param['sx'] = self.param['nx_h']*self.reso
         self.param['sy'] = self.param['ny_h']*self.reso
 
@@ -20,7 +22,7 @@ class initialization:
 
         ## detector
         self.param['su'] = 2*np.sqrt(self.param['sx']**2+self.param['sy']**2)
-        self.param['nu_h'] = 641
+        self.param['nu_h'] = 640
         self.param['dde'] = 1075*self.reso
         self.param['dso'] = 1075*self.reso
         self.param['u_water'] = 0.192 #0.0205
@@ -43,7 +45,12 @@ def imaging_geo(param):
     #                                     src_radius=param.param['dso'],
     #                                     det_radius=param.param['dde'])
 
-    ray_trafo_hh = odl.tomo.RayTransform(reco_space_h, geometry_h, impl='astra_cuda')  #https://github.com/astra-toolbox/astra-toolbox
+    ray_trafo_hh = odl.tomo.RayTransform(reco_space_h, geometry_h, impl=None)  #https://github.com/astra-toolbox/astra-toolbox
     FBPOper_hh = odl.tomo.fbp_op(ray_trafo_hh, filter_type='Hamming', frequency_scaling=1.0)
+    
+    fp = odl_torch.OperatorModule(ray_trafo_hh)
+    fbp = odl_torch.OperatorModule(FBPOper_hh) # fildered backprojection
+    bp = odl_torch.OperatorModule(ray_trafo_hh.adjoint) # backprojection
 
-    return ray_trafo_hh, FBPOper_hh
+    
+    return fp, fbp, bp
